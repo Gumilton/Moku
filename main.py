@@ -57,8 +57,11 @@ class main:
     def playai2(self):
         self.canvas.delete(ALL)
         self.drawBoard()
-        count = 0
-        self.canvas.bind("<ButtonPress-1>", self.hplayer)
+        self.count = 0
+        randomAI = RandomPlay()
+        x,y = randomAI.randomStart(self.board)
+        self.moveByIndex(x,y)
+        self.play_AI()
 
     def humanplay(self):
         self.canvas.delete(ALL)
@@ -70,12 +73,17 @@ class main:
         self.gameOver = True
 
     def hplayer(self, event):
-        self.move(event.x, event.y)
+        self.moveByPixel(event.x, event.y)
 
     def moveByPixel(self, posX, posY):
         ind_input_X = posX // (self.width / self.size)
         ind_input_Y = posY // (self.width / self.size)
         return self.moveByIndex(ind_input_X, ind_input_Y)
+
+    def pixel2ind(self, posX, posY):
+        ind_input_X = posX // (self.width / self.size)
+        ind_input_Y = posY // (self.width / self.size)
+        return ind_input_X, ind_input_Y
 
     def moveByIndex(self, indX, indY):
         if self.board[indX,indY] == 0:
@@ -113,17 +121,20 @@ class main:
 
 
     def human_move_against_AI(self, event):
-        # while not self.gameOver:
-        if self.count % 2 == 0:
-            if self.moveByPixel(event.x, event.y):
-                self.count += 1
-                if self.count % 2 != 0:
-                    # print self.count
-                    x, y = self.ai.move(self.board, self.black)
-                    # print x, y
-                    self.moveByIndex(x, y)
-                    # print np.where(self.board != 0)
+        if not self.gameOver:
+            if self.count % 2 == 0:
+                huX, huY = self.pixel2ind(event.x, event.y)
+                print huX, huY
+                if self.moveByIndex(huX, huY):
                     self.count += 1
+                    if not self.gameOver:
+                        if self.count % 2 != 0:
+                            print self.count
+                            ai_move, _ = self.ai.move(self.board, self.black, huX, huY)
+                            print ai_move, _
+                            self.moveByIndex(ai_move[0], ai_move[1])
+                            # print np.where(self.board != 0)
+                            self.count += 1
 
 
 
